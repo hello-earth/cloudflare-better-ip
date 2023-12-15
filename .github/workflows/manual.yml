@@ -1,36 +1,24 @@
-name: Sync with Upstream
+name: 定时运行 app.js
 
 on:
   schedule:
     - cron: '0 0,12 * * *'  # 在UTC时间的0点和12点执行
-  push:
-    branches:
-      - main
-  repository_dispatch:
-    types: [sync-with-upstream]
 
 jobs:
-  sync_with_upstream:
+  run_app_js:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout 代码库
       uses: actions/checkout@v2
 
-    - name: Set up Git
-      run: |
-        git config --global user.email "actions@github.com"
-        git config --global user.name "GitHub Actions"
+    - name: 设置 Node.js 环境
+      uses: actions/setup-node@v3
+      with:
+        node-version: 14
 
-    - name: Fetch upstream changes
-      run: |
-        git remote add upstream https://github.com/hello-earth/cloudflare-better-ip.git
-        git fetch upstream
+    - name: 安装依赖
+      run: npm install
 
-    - name: Merge upstream changes
-      run: |
-        git merge upstream/main
-
-    - name: Push changes to origin
-      run: |
-        git push
+    - name: 运行 app.js
+      run: node app.js
