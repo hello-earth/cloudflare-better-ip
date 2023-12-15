@@ -1,0 +1,36 @@
+name: 同步上游仓库
+
+on:
+  schedule:
+    - cron: '0 0,12 * * *'
+  push:
+    branches:
+      - main
+  repository_dispatch:
+    types: [sync-with-upstream]
+
+jobs:
+  sync_with_upstream:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 检出仓库
+      uses: actions/checkout@v2
+
+    - name: 设置 Git
+      run: |
+        git config --global user.email "actions@github.com"
+        git config --global user.name "GitHub Actions"
+
+    - name: 获取上游仓库的变更
+      run: |
+        git remote add upstream https://github.com/hello-earth/cloudflare-better-ip.git
+        git fetch upstream
+
+    - name: 合并上游仓库的变更
+      run: |
+        git merge --allow-unrelated-histories upstream/main
+
+    - name: 推送变更到本地仓库
+      run: |
+        git push
