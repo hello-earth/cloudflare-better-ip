@@ -1,0 +1,36 @@
+name: Sync with Upstream
+
+on:
+  schedule:
+    - cron: '0 0,12 * * *'  # 在UTC时间的0点和12点执行
+  push:
+    branches:
+      - main
+  repository_dispatch:
+    types: [sync-with-upstream]
+
+jobs:
+  sync_with_upstream:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Git
+      run: |
+        git config --global user.email "actions@github.com"
+        git config --global user.name "GitHub Actions"
+
+    - name: Fetch upstream changes
+      run: |
+        git remote add upstream https://github.com/hello-earth/cloudflare-better-ip.git
+        git fetch upstream
+
+    - name: Merge upstream changes
+      run: |
+        git merge upstream/main
+
+    - name: Push changes to origin
+      run: |
+        git push
